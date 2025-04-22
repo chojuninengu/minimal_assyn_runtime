@@ -94,7 +94,7 @@ pub async fn sleep(duration: Duration) {
     impl Future for Sleep {
         type Output = ();
 
-        fn poll(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
+        fn poll(self: Pin<&mut Self>, _cx: &mut Context<'_>) -> Poll<Self::Output> {
             if Instant::now() >= self.deadline {
                 Poll::Ready(())
             } else {
