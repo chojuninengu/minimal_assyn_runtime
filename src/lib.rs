@@ -1,11 +1,11 @@
 use std::{
+    collections::VecDeque,
     future::Future,
     pin::Pin,
-    task::{Context, Poll, Waker},
-    time::{Duration, Instant},
-    collections::VecDeque,
     sync::{Arc, Mutex},
+    task::{Context, Poll, RawWaker, RawWakerVTable, Waker},
     thread,
+    time::{Duration, Instant},
 };
 
 pub struct MiniRuntime {
@@ -43,7 +43,7 @@ impl MiniRuntime {
 
             self.process_timers();
             self.process_tasks();
-            
+
             if self.tasks.is_empty() && self.timers.is_empty() {
                 thread::yield_now();
             }
@@ -51,7 +51,13 @@ impl MiniRuntime {
     }
 
     fn create_waker(&self) -> Waker {
-        todo!()
+        static VTABLE: RawWakerVTable = RawWakerVTable::new(
+            |_| RawWaker::new(std::ptr::null(), &VTABLE),
+            |_| {},
+            |_| {},
+            |_| {},
+        );
+        unsafe { Waker::from_raw(RawWaker::new(std::ptr::null(), &VTABLE)) }
     }
 
     fn process_timers(&mut self) {
@@ -71,7 +77,7 @@ impl MiniRuntime {
         while let Some(mut task) = tasks.pop_front() {
             let waker = task.waker.take().unwrap();
             let mut cx = Context::from_waker(&waker);
-            
+
             if let Poll::Pending = task.future.as_mut().poll(&mut cx) {
                 task.waker = Some(waker);
                 self.tasks.push_back(task);
@@ -133,4 +139,4 @@ macro_rules! mini_rt {
             rt.block_on(async { $($t)* });
         }
     };
-} 
+}
