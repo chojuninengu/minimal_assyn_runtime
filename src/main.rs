@@ -1,4 +1,4 @@
-use minimal_async_runtime::{mini_rt, sleep, yield_now};
+use minimal_async_runtime::{mini_rt, sleep};
 use std::time::Duration;
 
 async fn task_one() {
@@ -14,9 +14,7 @@ async fn task_two() {
 }
 
 mini_rt! {
-    async fn main() {
-        println!("Runtime started...");
-        task_one().await;
-        task_two().await;
-    }
+    println!("Runtime started...");
+    task_one().await;
+    task_two().await;
 }
