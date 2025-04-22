@@ -2,7 +2,6 @@ use std::{
     collections::VecDeque,
     future::Future,
     pin::Pin,
-    sync::{Arc, Mutex},
     task::{Context, Poll, RawWaker, RawWakerVTable, Waker},
     thread,
     time::{Duration, Instant},
